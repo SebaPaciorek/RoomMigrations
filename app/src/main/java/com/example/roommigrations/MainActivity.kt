@@ -17,21 +17,29 @@ class MainActivity : AppCompatActivity() {
             applicationContext,
             UserDatabase::class.java,
             "userDatabase"
-        ).build()
+        )
+            .addMigrations(UserDatabase.migrationFrom3To4)
+            .build()
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                userDatabase.dao.getUsers().forEach(::println)
+                userDatabase.userDao.getUsers().forEach(::println)
+                userDatabase.schoolDao.getSchools().forEach(::println)
             }
         }
 
         (1..10).forEach {
             lifecycleScope.launch {
                 repeatOnLifecycle(Lifecycle.State.STARTED) {
-                    userDatabase.dao.insertUser(
+                    userDatabase.userDao.insertUser(
                         User(
                             email = "user$it@example.com",
                             username = "user@it"
+                        )
+                    )
+                    userDatabase.schoolDao.insertSchool(
+                        School(
+                            name = "school$it"
                         )
                     )
                 }
